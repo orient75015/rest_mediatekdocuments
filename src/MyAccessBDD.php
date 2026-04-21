@@ -20,13 +20,11 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * demande de recherche
-     * @param string $table
-     * @param array|null $champs nom et valeur de chaque champ
-     * @return array|null tuples du résultat de la requête ou null si erreur
-     * @override
      */	
     protected function traitementSelect(string $table, ?array $champs) : ?array{
-        switch($table){  
+        switch($table){ 
+            case "abonnement/expiresbientot" :
+                return $this->selectAbonnementsExpiresBientot();
             case "livre" :
                 return $this->selectAllLivres();
             case "dvd" :
@@ -37,6 +35,8 @@ class MyAccessBDD extends AccessBDD {
                 return $this->selectExemplairesRevue($champs);
             case "commandedocument" :
                 return $this->selectCommandesDocument($champs);
+            case "abonnement" :
+                return $this->selectCommandesRevue($champs);
             case "genre" :
             case "public" :
             case "rayon" :
@@ -52,27 +52,20 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * demande d'ajout (insert)
-     * @param string $table
-     * @param array|null $champs nom et valeur de chaque champ
-     * @return int|null nombre de tuples ajoutés ou null si erreur
-     * @override
      */	
     protected function traitementInsert(string $table, ?array $champs) : ?int{
         switch($table){
             case "commandedocument" :
                 return $this->insertCommandeDocument($champs);
+            case "abonnement" :
+                return $this->insertCommandeRevue($champs);
             default:                    
-                return $this->insertOneTupleOneTable($table, $champs);	
+                return $this->insertOneTupleOneTable($table, $champs);
         }
     }
     
     /**
      * demande de modification (update)
-     * @param string $table
-     * @param string|null $id
-     * @param array|null $champs nom et valeur de chaque champ
-     * @return int|null nombre de tuples modifiés ou null si erreur
-     * @override
      */	
     protected function traitementUpdate(string $table, ?string $id, ?array $champs) : ?int{
         switch($table){
@@ -85,25 +78,20 @@ class MyAccessBDD extends AccessBDD {
     
     /**
      * demande de suppression (delete)
-     * @param string $table
-     * @param array|null $champs nom et valeur de chaque champ
-     * @return int|null nombre de tuples supprimés ou null si erreur
-     * @override
      */	
     protected function traitementDelete(string $table, ?array $champs) : ?int{
         switch($table){
             case "commandedocument" :
                 return $this->deleteCommandeDocument($champs);
+            case "abonnement" :
+                return $this->deleteTuplesOneTable($table, $champs);
             default:                    
-                return $this->deleteTuplesOneTable($table, $champs);	
+                return $this->deleteTuplesOneTable($table, $champs);
         }
     }	    
         
     /**
      * récupère les tuples d'une seule table
-     * @param string $table
-     * @param array|null $champs
-     * @return array|null 
      */
     private function selectTuplesOneTable(string $table, ?array $champs) : ?array{
         if(empty($champs)){
@@ -121,9 +109,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * demande d'ajout (insert) d'un tuple dans une table
-     * @param string $table
-     * @param array|null $champs
-     * @return int|null nombre de tuples ajoutés (0 ou 1) ou null si erreur
      */	
     private function insertOneTupleOneTable(string $table, ?array $champs) : ?int{
         if(empty($champs)){
@@ -145,10 +130,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * demande de modification (update) d'un tuple dans une table
-     * @param string $table
-     * @param string|null $id
-     * @param array|null $champs 
-     * @return int|null nombre de tuples modifiés (0 ou 1) ou null si erreur
      */	
     private function updateOneTupleOneTable(string $table, ?string $id, ?array $champs) : ?int {
         if(empty($champs)){
@@ -169,9 +150,6 @@ class MyAccessBDD extends AccessBDD {
     
     /**
      * demande de suppression (delete) d'un ou plusieurs tuples dans une table
-     * @param string $table
-     * @param array|null $champs
-     * @return int|null nombre de tuples supprimés ou null si erreur
      */
     private function deleteTuplesOneTable(string $table, ?array $champs) : ?int{
         if(empty($champs)){
@@ -187,8 +165,6 @@ class MyAccessBDD extends AccessBDD {
  
     /**
      * récupère toutes les lignes d'une table simple (qui contient juste id et libelle)
-     * @param string $table
-     * @return array|null
      */
     private function selectTableSimple(string $table) : ?array{
         $requete = "select * from $table order by libelle;";		
@@ -197,7 +173,6 @@ class MyAccessBDD extends AccessBDD {
     
     /**
      * récupère toutes les lignes de la table Livre et les tables associées
-     * @return array|null
      */
     private function selectAllLivres() : ?array{
         $requete = "Select l.id, l.ISBN, l.auteur, d.titre, d.image, l.collection, ";
@@ -212,7 +187,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère toutes les lignes de la table DVD et les tables associées
-     * @return array|null
      */
     private function selectAllDvd() : ?array{
         $requete = "Select l.id, l.duree, l.realisateur, d.titre, d.image, l.synopsis, ";
@@ -227,7 +201,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère toutes les lignes de la table Revue et les tables associées
-     * @return array|null
      */
     private function selectAllRevues() : ?array{
         $requete = "Select l.id, l.periodicite, d.titre, d.image, l.delaiMiseADispo, ";
@@ -242,8 +215,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère tous les exemplaires d'une revue
-     * @param array|null $champs 
-     * @return array|null
      */
     private function selectExemplairesRevue(?array $champs) : ?array{
         if(empty($champs)){
@@ -262,8 +233,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère toutes les commandes d'un livre ou DVD
-     * @param array|null $champs
-     * @return array|null
      */
     private function selectCommandesDocument(?array $champs) : ?array{
         if(empty($champs)){
@@ -285,8 +254,6 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * insère une commande document (dans commande ET commandedocument)
-     * @param array|null $champs
-     * @return int|null
      */
     private function insertCommandeDocument(?array $champs) : ?int{
         if(empty($champs)){
@@ -303,34 +270,29 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->updateBDD($requete, $champs);
     }
 
-        /**
-      * modifie le suivi d'une commande document
-      * @param string|null $id
-      * @param array|null $champs
-      * @return int|null
-      */
-     private function updateSuiviCommande(?string $id, ?array $champs) : ?int{
-         if(empty($champs) || is_null($id)){
-             return null;
-         }
-         // récupère idSuivi peu importe la casse
-         $idSuivi = null;
-         foreach($champs as $key => $value){
-             if(strtolower($key) === 'idsuivi'){
-                 $idSuivi = $value;
-                 break;
-             }
-         }
-         if(is_null($idSuivi)){
-             return null;
-         }
-         $requete = "UPDATE commandedocument SET idSuivi = :idSuivi WHERE id = :id";
-         return $this->conn->updateBDD($requete, ['idSuivi' => $idSuivi, 'id' => $id]);
-     }
-         /**
+    /**
+     * modifie le suivi d'une commande document
+     */
+    private function updateSuiviCommande(?string $id, ?array $champs) : ?int{
+        if(empty($champs) || is_null($id)){
+            return null;
+        }
+        $idSuivi = null;
+        foreach($champs as $key => $value){
+            if(strtolower($key) === 'idsuivi'){
+                $idSuivi = $value;
+                break;
+            }
+        }
+        if(is_null($idSuivi)){
+            return null;
+        }
+        $requete = "UPDATE commandedocument SET idSuivi = :idSuivi WHERE id = :id";
+        return $this->conn->updateBDD($requete, ['idSuivi' => $idSuivi, 'id' => $id]);
+    }
+
+    /**
      * supprime une commande document
-     * @param array|null $champs
-     * @return int|null
      */
     private function deleteCommandeDocument(?array $champs) : ?int{
         if(empty($champs)){
@@ -339,4 +301,38 @@ class MyAccessBDD extends AccessBDD {
         $requete = "DELETE FROM commande WHERE id = :id";
         return $this->conn->updateBDD($requete, $champs);
     }
+
+    /**
+     * récupère tous les abonnements d'une revue
+     */
+    private function selectCommandesRevue(?array $champs) : ?array{
+        if(empty($champs) || !array_key_exists('id', $champs)){
+            return null;
+        }
+        $requete = "SELECT a.id, a.dateCommande, a.montant, a.dateFinAbonnement, a.idRevue ";
+        $requete .= "FROM abonnement a ";
+        $requete .= "WHERE a.idRevue = :id ";
+        $requete .= "ORDER BY a.dateCommande DESC";
+        return $this->conn->queryBDD($requete, ['id' => $champs['id']]);
+    }
+
+    /**
+     * insère un abonnement
+     */
+    private function insertCommandeRevue(?array $champs) : ?int{
+        if(empty($champs)){
+            return null;
+        }
+        $requete = "INSERT INTO abonnement (id, dateCommande, montant, dateFinAbonnement, idRevue) ";
+        $requete .= "VALUES (:Id, :DateCommande, :Montant, :DateFinAbonnement, :IdRevue)";
+        return $this->conn->updateBDD($requete, $champs);
+    }
+    private function selectAbonnementsExpiresBientot() : ?array{
+    $requete = "SELECT a.id, a.dateCommande, a.montant, a.dateFinAbonnement, a.idRevue, d.titre ";
+    $requete .= "FROM abonnement a ";
+    $requete .= "JOIN document d ON a.idRevue = d.id ";
+    $requete .= "WHERE a.dateFinAbonnement BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) ";
+    $requete .= "ORDER BY a.dateFinAbonnement ASC";
+    return $this->conn->queryBDD($requete);
+}
 }
