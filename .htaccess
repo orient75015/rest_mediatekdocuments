@@ -1,5 +1,6 @@
 Options -Indexes
 RewriteEngine on
+RewriteRule ^$ - [R=400,L]
 RewriteCond %{REQUEST_METHOD} =GET
 RewriteRule ^([a-zA-Z0-9_]+)/([a-zA-Z0-9]+)$ src/index.php?table=$1/$2 [B,L]
 RewriteCond %{REQUEST_METHOD} =GET
