@@ -327,12 +327,16 @@ class MyAccessBDD extends AccessBDD {
         $requete .= "VALUES (:Id, :DateCommande, :Montant, :DateFinAbonnement, :IdRevue)";
         return $this->conn->updateBDD($requete, $champs);
     }
+
+    /**
+     * récupère les abonnements qui expirent dans moins de 30 jours
+     */
     private function selectAbonnementsExpiresBientot() : ?array{
-    $requete = "SELECT a.id, a.dateCommande, a.montant, a.dateFinAbonnement, a.idRevue, d.titre ";
-    $requete .= "FROM abonnement a ";
-    $requete .= "JOIN document d ON a.idRevue = d.id ";
-    $requete .= "WHERE a.dateFinAbonnement BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) ";
-    $requete .= "ORDER BY a.dateFinAbonnement ASC";
-    return $this->conn->queryBDD($requete);
-}
+        $requete = "SELECT a.id, a.dateCommande, a.montant, a.dateFinAbonnement, a.idRevue, d.titre ";
+        $requete .= "FROM abonnement a ";
+        $requete .= "JOIN document d ON a.idRevue = d.id ";
+        $requete .= "WHERE a.dateFinAbonnement BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) ";
+        $requete .= "ORDER BY a.dateFinAbonnement ASC";
+        return $this->conn->queryBDD($requete);
+    }
 }
