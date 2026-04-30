@@ -43,6 +43,8 @@ class MyAccessBDD extends AccessBDD {
             case "etat" :
             case "suivi" :
                 return $this->selectTableSimple($table);
+            case "utilisateur" :
+                return $this->selectUtilisateur($champs);
             case "" :
                 // return $this->uneFonction(parametres);
             default:
@@ -338,5 +340,16 @@ class MyAccessBDD extends AccessBDD {
         $requete .= "WHERE a.dateFinAbonnement BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY) ";
         $requete .= "ORDER BY a.dateFinAbonnement ASC";
         return $this->conn->queryBDD($requete);
+    }
+    
+    /**
+     * récupère un utilisateur par son login
+     */
+    private function selectUtilisateur(?array $champs) : ?array{
+        if(empty($champs) || !array_key_exists('login', $champs)){
+            return null;
+        }
+        $requete = "SELECT * FROM utilisateur WHERE login = :login";
+        return $this->conn->queryBDD($requete, ['login' => $champs['login']]);
     }
 }
